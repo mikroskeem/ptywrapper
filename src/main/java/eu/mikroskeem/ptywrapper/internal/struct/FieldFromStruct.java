@@ -28,6 +28,8 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
+ * Annotation to mark fields to be part of a struct.
+ *
  * @author Mark Vainomaa
  */
 @Target(ElementType.FIELD)

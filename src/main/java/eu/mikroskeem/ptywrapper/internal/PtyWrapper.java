@@ -25,50 +25,61 @@ package eu.mikroskeem.ptywrapper.internal;
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.IntByReference;
 import eu.mikroskeem.ptywrapper.Pty;
+import eu.mikroskeem.ptywrapper.Winsize;
+import eu.mikroskeem.ptywrapper.exception.CloseException;
+import eu.mikroskeem.ptywrapper.exception.IoctlException;
+import eu.mikroskeem.ptywrapper.exception.PtyOpenException;
 import eu.mikroskeem.ptywrapper.internal.natives.CLibrary;
 import eu.mikroskeem.ptywrapper.internal.natives.CUtil;
-import eu.mikroskeem.ptywrapper.internal.struct.Termios;
-import eu.mikroskeem.ptywrapper.internal.struct.Winsize;
+import eu.mikroskeem.ptywrapper.internal.struct.TermiosStruct;
+import eu.mikroskeem.ptywrapper.internal.struct.WinsizeStruct;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+import static eu.mikroskeem.ptywrapper.internal.util.Failure.checkThrows;
 
 /**
+ * Pty wrapper, doing all heavy lifting
+ *
  * @author Mark Vainomaa
  */
 public final class PtyWrapper implements Pty, Closeable {
     private final int masterFd;
     private final int slaveFd;
-    private final String ptyPath;
+    private final Path ptyPath;
 
-    public PtyWrapper() {
+    public PtyWrapper(@NotNull Winsize winsize) {
         // Set up pointers
         IntByReference amaster = new IntByReference();
         IntByReference aslave = new IntByReference();
         Memory memory = new Memory(255);
 
         // Set up termios & winsize
-        Termios.ByReference termios = new Termios.ByReference();
-        Winsize.ByReference winsize = new Winsize.ByReference();
+        TermiosStruct.ByReference termiosStruct = new TermiosStruct.ByReference();
+        WinsizeStruct.ByReference winsizeStruct = new WinsizeStruct.ByReference();
 
-        winsize.ws_col = 80;
-        winsize.ws_row = 24;
+        // Copy cols & rows
+        winsizeStruct.ws_col = (short) winsize.getCols();
+        winsizeStruct.ws_row = (short) winsize.getRows();
 
         // Initializes a new PTY
-        int r = CUtil.INSTANCE.openpty(amaster, aslave, memory, termios, winsize);
-        // TODO: throw exception if openpty failed
+        checkThrows(CUtil.INSTANCE.openpty(amaster, aslave, memory, termiosStruct, winsizeStruct), PtyOpenException::new);
 
         this.masterFd = amaster.getValue();
         this.slaveFd = aslave.getValue();
-        this.ptyPath = memory.getString(0, "UTF-8");
+        this.ptyPath = Paths.get(memory.getString(0, "UTF-8"));
+    }
 
-        // Set window size
-        CLibrary.INSTANCE.ioctl(this.masterFd, CLibrary.TIOCSWINSZ, winsize);
+    public PtyWrapper() {
+        this(Winsize.of(80, 24));
     }
 
     @Override
     @NotNull
-    public String getPath() {
+    public Path getPath() {
         return ptyPath;
     }
 
@@ -82,25 +93,25 @@ public final class PtyWrapper implements Pty, Closeable {
         return slaveFd;
     }
 
-    private Winsize.ByReference getWinSize() {
-        Winsize.ByReference winsize = new Winsize.ByReference();
-        CLibrary.INSTANCE.ioctl(this.masterFd, CLibrary.TIOCGWINSZ, winsize);
-        return winsize;
+    @NotNull
+    @Override
+    public Winsize getWinsize() {
+        WinsizeStruct.ByReference winsize = new WinsizeStruct.ByReference();
+        checkThrows(CLibrary.INSTANCE.ioctl(this.masterFd, CLibrary.TIOCGWINSZ, winsize), IoctlException::new);
+        return new WinsizeWrapper(winsize.ws_col, winsize.ws_row);
     }
 
     @Override
-    public int getRows() {
-        return getWinSize().ws_row;
-    }
-
-    @Override
-    public int getCols() {
-        return getWinSize().ws_col;
+    public void setWinsize(@NotNull Winsize winsize) {
+        WinsizeStruct.ByReference winsizeStruct = new WinsizeStruct.ByReference();
+        winsizeStruct.ws_row = (short) winsize.getRows();
+        winsizeStruct.ws_col = (short) winsize.getCols();
+        checkThrows(CLibrary.INSTANCE.ioctl(this.masterFd, CLibrary.TIOCSWINSZ, winsizeStruct), IoctlException::new);
     }
 
     @Override
     public void close() {
-        CLibrary.INSTANCE.close(masterFd);
-        CLibrary.INSTANCE.close(slaveFd);
+        checkThrows(CLibrary.INSTANCE.close(masterFd), CloseException::new);
+        checkThrows(CLibrary.INSTANCE.close(slaveFd), CloseException::new);
     }
 }

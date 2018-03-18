@@ -22,20 +22,71 @@
 
 package eu.mikroskeem.ptywrapper;
 
+import eu.mikroskeem.ptywrapper.internal.PtyWrapper;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.file.Path;
+
 /**
+ * Pseudoterminal object
+ *
  * @author Mark Vainomaa
  */
-public interface Pty {
+public interface Pty extends AutoCloseable {
+    /**
+     * Gets pseudoterminal file path
+     *
+     * @return Pseudoterminal file path
+     */
     @NotNull
-    String getPath();
+    Path getPath();
 
+    /**
+     * Gets pseudoterminal master file descriptor
+     *
+     * @return Pseudoterminal master file descriptor
+     */
     int getMasterFd();
 
+    /**
+     * Gets pseudoterminal slave file descriptor
+     *
+     * @return Pseudoterminal slave file descriptor
+     */
     int getSlaveFd();
 
-    int getRows();
+    /**
+     * Gets pseudoterminal window size
+     *
+     * @return Pseudoterminal window size
+     */
+    @NotNull
+    Winsize getWinsize();
 
-    int getCols();
+    /**
+     * Sets pseudoterminal window size
+     *
+     * @param winsize Window size object
+     */
+    void setWinsize(@NotNull Winsize winsize);
+
+    /**
+     * Creates new pseudoterminal object
+     *
+     * @return Pseudoterminal object
+     */
+    @NotNull
+    static Pty createNew() {
+        return new PtyWrapper();
+    }
+
+    /**
+     * Creates new pseudoterminal object with custom window size
+     *
+     * @return Pseudoterminal object
+     */
+    @NotNull
+    static Pty createNew(@NotNull Winsize winsize) {
+        return new PtyWrapper(winsize);
+    }
 }

@@ -24,10 +24,13 @@ package eu.mikroskeem.test.ptywrapper;
 
 import com.sun.jna.Memory;
 import com.sun.jna.ptr.IntByReference;
+import eu.mikroskeem.ptywrapper.Pty;
+import eu.mikroskeem.ptywrapper.Winsize;
+import eu.mikroskeem.ptywrapper.internal.PtyWrapper;
 import eu.mikroskeem.ptywrapper.internal.natives.CLibrary;
 import eu.mikroskeem.ptywrapper.internal.natives.CUtil;
 import eu.mikroskeem.ptywrapper.internal.Errno;
-import eu.mikroskeem.ptywrapper.internal.struct.Winsize;
+import eu.mikroskeem.ptywrapper.internal.struct.WinsizeStruct;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -55,15 +58,28 @@ public class PtyWrapperTest {
         Assertions.assertNotNull(memory.getString(0, "UTF-8"));
 
         // Get window size
-        Winsize.ByReference winsize = new Winsize.ByReference();
+        WinsizeStruct.ByReference winsize = new WinsizeStruct.ByReference();
         r = CLibrary.INSTANCE.ioctl(amaster.getValue(), CLibrary.TIOCGWINSZ, winsize);
         Assertions.assertEquals(0, r);
 
-        System.out.println(winsize.ws_col);
-        System.out.println(winsize.ws_row);
+        Assertions.assertEquals(0, winsize.ws_col);
+        Assertions.assertEquals(0, winsize.ws_row);
 
         // Make sure to close fds
         Assertions.assertTrue(CLibrary.INSTANCE.close(amaster.getValue()) >= 0);
         Assertions.assertTrue(CLibrary.INSTANCE.close(aslave.getValue()) >= 0);
+    }
+
+    @Test
+    public void testDefaultWrapperWinsize() throws Exception {
+        try(Pty pty = Pty.createNew()) {
+            Winsize winsize = pty.getWinsize();
+            Assertions.assertEquals(80, winsize.getCols());
+            Assertions.assertEquals(24, winsize.getRows());
+
+            Winsize newWinsize = Winsize.of(90, 30);
+            pty.setWinsize(newWinsize);
+            Assertions.assertEquals(newWinsize, pty.getWinsize());
+        }
     }
 }

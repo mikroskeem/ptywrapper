@@ -26,8 +26,10 @@ import com.sun.jna.Library;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
 import com.sun.jna.ptr.IntByReference;
-import eu.mikroskeem.ptywrapper.internal.struct.Termios;
-import eu.mikroskeem.ptywrapper.internal.struct.Winsize;
+import eu.mikroskeem.ptywrapper.internal.struct.TermiosStruct;
+import eu.mikroskeem.ptywrapper.internal.struct.WinsizeStruct;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * @author Mark Vainomaa
@@ -38,5 +40,6 @@ public interface CUtil extends Library {
     /**
      * See https://linux.die.net/man/3/openpty
      */
-    int openpty(IntByReference amaster, IntByReference aslave, Memory name, Termios.ByReference termp, Winsize.ByReference winp);
+    int openpty(@NotNull IntByReference amaster, @NotNull IntByReference aslave, @NotNull Memory name,
+                @Nullable TermiosStruct.ByReference termp, @Nullable WinsizeStruct.ByReference winp);
 }

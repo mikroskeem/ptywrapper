@@ -28,7 +28,7 @@ import com.sun.jna.Native;
 /**
  * @author Mark Vainomaa
  */
-@SuppressWarnings("OctalInteger ")
+@SuppressWarnings("OctalInteger")
 public interface CLibrary extends Library {
     CLibrary INSTANCE = Native.loadLibrary("c", CLibrary.class);
 

@@ -32,13 +32,16 @@ import java.util.stream.Collectors;
 /**
  * @author Mark Vainomaa
  */
-public class Winsize extends Structure {
-    public static class ByReference extends Winsize implements Structure.ByReference {}
+public class TermiosStruct extends Structure {
+    public static class ByReference extends TermiosStruct implements Structure.ByReference {}
 
-    @FieldFromStruct public short ws_row;
-    @FieldFromStruct public short ws_col;
-    @FieldFromStruct public short ws_xpixel;
-    @FieldFromStruct public short ws_ypixel;
+    @FieldFromStruct public int c_iflag;
+    @FieldFromStruct public int c_oflag;
+    @FieldFromStruct public int c_cflag;
+    @FieldFromStruct public int c_lflag;
+    @FieldFromStruct public byte[] c_cc = new byte[20];
+    @FieldFromStruct public int c_ispeed;
+    @FieldFromStruct public int c_ospeed;
 
     @Override
     protected List<String> getFieldOrder() {
