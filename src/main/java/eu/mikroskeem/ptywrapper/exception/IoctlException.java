@@ -5,7 +5,7 @@ package eu.mikroskeem.ptywrapper.exception;
  *
  * @author Mark Vainomaa
  */
-public class IoctlException extends RuntimeException {
+public final class IoctlException extends RuntimeException {
     public IoctlException(int result) {
         super("Failed ioctl(). Result: " + result);
     }

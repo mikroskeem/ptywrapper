@@ -26,10 +26,9 @@ import com.sun.jna.Memory;
 import com.sun.jna.ptr.IntByReference;
 import eu.mikroskeem.ptywrapper.Pty;
 import eu.mikroskeem.ptywrapper.Winsize;
-import eu.mikroskeem.ptywrapper.internal.PtyWrapper;
+import eu.mikroskeem.ptywrapper.internal.Errno;
 import eu.mikroskeem.ptywrapper.internal.natives.CLibrary;
 import eu.mikroskeem.ptywrapper.internal.natives.CUtil;
-import eu.mikroskeem.ptywrapper.internal.Errno;
 import eu.mikroskeem.ptywrapper.internal.struct.WinsizeStruct;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -40,7 +39,7 @@ import org.junit.jupiter.api.Test;
 public class PtyWrapperTest {
     @Test
     public void testErrno() throws Exception {
-        int errno = Errno.getErrno();
+        Assertions.assertNotNull(Errno.getStringError());
     }
 
     @Test

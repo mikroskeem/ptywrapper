@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Termios struct
+ *
  * @author Mark Vainomaa
  */
 public class TermiosStruct extends Structure {

@@ -98,7 +98,7 @@ public final class PtyWrapper implements Pty, Closeable {
     public Winsize getWinsize() {
         WinsizeStruct.ByReference winsize = new WinsizeStruct.ByReference();
         checkThrows(CLibrary.INSTANCE.ioctl(this.masterFd, CLibrary.TIOCGWINSZ, winsize), IoctlException::new);
-        return new WinsizeWrapper(winsize.ws_col, winsize.ws_row);
+        return Winsize.of(winsize.ws_col, winsize.ws_row);
     }
 
     @Override

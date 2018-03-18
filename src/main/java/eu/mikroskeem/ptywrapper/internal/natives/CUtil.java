@@ -32,6 +32,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
+ * {@code libutil.so.1 wrapper}
+ *
  * @author Mark Vainomaa
  */
 public interface CUtil extends Library {

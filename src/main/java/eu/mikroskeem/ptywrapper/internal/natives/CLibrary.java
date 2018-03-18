@@ -23,9 +23,14 @@
 package eu.mikroskeem.ptywrapper.internal.natives;
 
 import com.sun.jna.Library;
+import com.sun.jna.Memory;
 import com.sun.jna.Native;
+import com.sun.jna.Pointer;
+import org.jetbrains.annotations.NotNull;
 
 /**
+ * C library wrapper
+ *
  * @author Mark Vainomaa
  */
 @SuppressWarnings("OctalInteger")
@@ -33,7 +38,7 @@ public interface CLibrary extends Library {
     CLibrary INSTANCE = Native.loadLibrary("c", CLibrary.class);
 
     /**
-     * https://linux.die.net/man/2/close
+     * See https://linux.die.net/man/2/close
      */
     int close(int fd);
 
@@ -43,8 +48,8 @@ public interface CLibrary extends Library {
     int ioctl(int fd, int request, Object... args);
 
     // ioctl(2) requests
-    int TIOCGWINSZ = 0x5413;
-    int TIOCSWINSZ = 0x5414;
+    int TIOCGWINSZ = 0x5413; // Used to get winsize struct
+    int TIOCSWINSZ = 0x5414; // Uset to set winsize struct
 
     /**
      * See https://linux.die.net/man/2/fcntl
@@ -52,7 +57,13 @@ public interface CLibrary extends Library {
     int fcntl(int fd, int cmd, Object... args);
 
     // fcntl(2) requests
-    int F_GETFL = 3;
-    int F_SETFL = 4;
-    int O_NONBLOCK = 04000;
+    int F_GETFL = 3; // Used to get flags
+    int F_SETFL = 4; // Used to set flags
+    int O_NONBLOCK = 04000; // Nonblocking flag
+
+    /**
+     * See https://linux.die.net/man/3/strerror
+     */
+    @NotNull
+    Pointer strerror_r(int errnum, @NotNull Memory buffer, int bufSize);
 }

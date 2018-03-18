@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Winsize struct
+ *
  * @author Mark Vainomaa
  */
 public class WinsizeStruct extends Structure {

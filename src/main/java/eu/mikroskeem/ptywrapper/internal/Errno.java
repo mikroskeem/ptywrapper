@@ -22,10 +22,16 @@
 
 package eu.mikroskeem.ptywrapper.internal;
 
+import com.sun.jna.Memory;
 import com.sun.jna.NativeLibrary;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
+import eu.mikroskeem.ptywrapper.internal.natives.CLibrary;
+import org.jetbrains.annotations.NotNull;
 
 /**
+ * Global errno variable reader and strerror wrapper
+ *
  * @author Mark Vainomaa
  */
 public final class Errno {
@@ -42,5 +48,14 @@ public final class Errno {
 
     public static synchronized int getErrno() {
         return getErrnoReference().getValue();
+    }
+
+    @NotNull
+    // Note: strerror_r does not return NULL, correct me if I'm wrong
+    public static synchronized String getStringError() {
+        int errorCode = getErrno();
+        Memory buf = new Memory(1024);
+        Pointer errstring = CLibrary.INSTANCE.strerror_r(errorCode, buf, (int)buf.size());
+        return errstring.getString(0);
     }
 }

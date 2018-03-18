@@ -5,7 +5,7 @@ package eu.mikroskeem.ptywrapper.exception;
  *
  * @author Mark Vainomaa
  */
-public class CloseException extends RuntimeException {
+public final class CloseException extends RuntimeException {
     public CloseException(int result) {
         super("Failed to close(). Result: " + result);
     }

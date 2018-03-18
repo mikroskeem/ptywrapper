@@ -1,6 +1,8 @@
 package eu.mikroskeem.ptywrapper.internal.util;
 
 /**
+ * SneakyThrows! Source: https://github.com/fge/throwing-lambdas/issues/9
+ *
  * @author Mark Vainomaa
  */
 public class SneakyThrows {
