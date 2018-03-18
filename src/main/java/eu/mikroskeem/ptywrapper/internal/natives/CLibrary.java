@@ -66,4 +66,14 @@ public interface CLibrary extends Library {
      */
     @NotNull
     Pointer strerror_r(int errnum, @NotNull Memory buffer, int bufSize);
+
+    /**
+     * See https://linux.die.net/man/2/vfork
+     */
+    int vfork();
+
+    /**
+     * See https://linux.die.net/man/2/_exit
+     */
+    void _exit(int status);
 }
